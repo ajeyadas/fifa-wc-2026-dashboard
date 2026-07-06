@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIFA World Cup 2026™ Dashboard</title>
+    
+    <!-- Open Graph / WhatsApp / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://fifawc2026-ajeya.netlify.app/">
+    <meta property="og:title" content="FIFA World Cup 2026™ Live Dashboard">
+    <meta property="og:description" content="Track live scores, fixtures, group standings, and top scorers for the 2026 FIFA World Cup. Updates automatically!">
+    <meta property="og:image" content="https://cronkitenews.azpbs.org/wp-content/uploads/2026/04/worldcupball.jpg">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://fifawc2026-ajeya.netlify.app/">
+    <meta name="twitter:title" content="FIFA World Cup 2026™ Live Dashboard">
+    <meta name="twitter:description" content="Track live scores, fixtures, group standings, and top scorers for the 2026 FIFA World Cup. Updates automatically!">
+    <meta name="twitter:image" content="https://cronkitenews.azpbs.org/wp-content/uploads/2026/04/worldcupball.jpg">
+
+    <style>
+        :root {
+            --primary: #000000;
+            --secondary: #C80046; /* Darkened WC 2026 Magenta/Red */
+            --accent: #2D0075; /* Darkened WC 2026 Purple */
+            --bg: #F4F5F7;
+            --card-bg: #FFFFFF;
+            --text: #333333;
+            --text-muted: #666666;
+            --tab-bg: #eeeeee;
+            --tab-text: #555555;
+            --tab-hover: #e4e4e4;
+            --table-th-bg: #f9f9f9;
+            --table-border: #eeeeee;
+            --table-even: #fafafa;
+            --table-hover: #f1f8ff;
+            --venue-bg: #eceef1;
+            --leader-bg: #f4fcf6;
+            --live-bg: #fff0f4;
+            --search-border: #e0e0e0;
+            --card-shadow: rgba(0,0,0,0.05);
+            --bg-overlay: linear-gradient(rgba(225, 228, 232, 0.90), rgba(220, 223, 228, 0.95));
+        }
+
+        [data-theme="dark"] {
+            --primary: #ffffff;
+            --secondary: #ff4d88;
+            --accent: #b366ff;
+            --bg: #121212;
+            --card-bg: #1e1e1e;
+            --text: #f0f0f0;
+            --text-muted: #aaaaaa;
+            --tab-bg: #2d2d2d;
+            --tab-text: #bbbbbb;
+            --tab-hover: #3d3d3d;
+            --table-th-bg: #252525;
+            --table-border: #333333;
+            --table-even: #222222;
+            --table-hover: #2a3b4c;
+            --venue-bg: #2d2d2d;
+            --leader-bg: #1a2e20;
+            --live-bg: #3a101d;
+            --search-border: #444444;
+            --card-shadow: rgba(0,0,0,0.3);
+            --bg-overlay: linear-gradient(rgba(18, 18, 18, 0.90), rgba(18, 18, 18, 0.95));
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-overlay), url('https://images.unsplash.com/photo-1522778119026-d647f0596c20?q=80&w=2000&auto=format&fit=crop') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--accent), var(--secondary));
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 800;
+            letter-spacing: -1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            margin: 10px 0 0;
+            font-size: 1.1em;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .theme-toggle:hover { background: rgba(255, 255, 255, 0.3); }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* Tabs */
+        .tabs-wrapper {
+            position: sticky;
+            top: 0;
+            background-color: var(--bg);
+            z-index: 100;
+            padding: 15px 0 5px;
+            margin-bottom: 20px;
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .tab-btn {
+            background: var(--tab-bg);
+            color: var(--tab-text);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: var(--tab-hover);
+            color: var(--text);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: var(--bg);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        /* Fixtures Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px var(--card-shadow);
+            border-top: 4px solid var(--secondary);
+            position: relative;
+            transition: transform 0.2s ease;
+            min-width: 0; /* Prevents grid blowout on mobile */
+            box-sizing: border-box;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .meta {
+            font-size: 0.85em;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .matchup {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .match-winner {
+            color: #34a853;
+            font-weight: bold;
+        }
+
+        .score-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            font-size: 2em;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .score-dash {
+            font-size: 0.6em;
+            color: var(--text-muted);
+        }
+
+        .venue {
+            text-align: center;
+            font-size: 0.85em;
+            color: var(--text-muted);
+            margin-top: 15px;
+            background: var(--venue-bg);
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        /* Group Cards */
+        .group-card {
+            border-top: 4px solid var(--accent);
+            text-align: center;
+        }
+        .group-title {
+            font-size: 1.4em;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed var(--table-border);
+        }
+        .group-table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch; /* Smooth horizontal scrolling on iOS */
+            padding-bottom: 5px;
+        }
+        .group-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        .group-table th {
+            background-color: var(--table-th-bg);
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 10px 8px;
+            text-align: center;
+            border-bottom: 2px solid var(--table-border);
+            white-space: nowrap;
+        }
+        .group-table td {
+            padding: 10px 8px;
+            text-align: center;
+            border-bottom: 1px solid var(--table-border);
+            white-space: nowrap;
+        }
+        .group-table th:first-child,
+        .group-table td:first-child {
+            text-align: center;
+            border-left: 4px solid transparent;
+            width: 30px;
+            font-weight: bold;
+            color: var(--text-muted);
+        }
+        .group-table tr:last-child td {
+            border-bottom: none;
+        }
+        .qualify-direct td:first-child {
+            border-left: 4px solid #34a853; /* Green */
+        }
+        .qualify-possible td:first-child {
+            border-left: 4px solid #fbbc04; /* Yellow */
+        }
+        .group-leader td {
+            background-color: var(--leader-bg);
+        }
+        
+        /* Table Zebra Striping & Hover */
+        .group-table tbody tr:nth-child(even):not(.group-leader) td {
+            background-color: var(--table-even);
+        }
+        .group-table tbody tr:hover td {
+            background-color: var(--table-hover);
+            transition: background-color 0.2s ease;
+        }
+        
+        /* Stats Formatting */
+        .text-left { text-align: left !important; }
+        .text-center { text-align: center !important; }
+        .font-bold { font-weight: 700; color: var(--text); }
+        
+        /* Form Balls */
+        .form-balls {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+            align-items: center;
+        }
+        .form-ball {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .form-w { background-color: #34a853; }
+        .form-l { background-color: #ea4335; }
+        .form-d { background-color: #fbbc04; }
+        .form-u { background-color: #9aa0a6; }
+        
+        /* Legend */
+        .legend {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: var(--text-muted);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+        }
+
+        .goal-scorers {
+            text-align: center;
+            font-size: 0.85em;
+            color: var(--text-muted);
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--table-border);
+        }
+
+        .cards-info {
+            text-align: center;
+            font-size: 0.85em;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        /* Top Scorers Table Spacing Fixes */
+        #scorers-table {
+            width: auto; /* Shrinks from 100% to eliminate massive white spaces */
+            min-width: 60%;
+            margin: 0 auto;
+        }
+        #scorers-table th, #scorers-table td {
+            padding-left: 15px;
+            padding-right: 15px; /* Tighter spacing for Player, Team, and Goals */
+        }
+        #scorers-table th:first-child, 
+        #scorers-table td:first-child {
+            padding-right: 85px; /* Increased specific spacing between Rank and Player */
+            width: auto;
+        }
+
+        /* Live Match Highlight */
+        .live-match {
+            border: 2px solid var(--secondary);
+            background-color: var(--live-bg);
+        }
+        .status-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 0.75em;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 800;
+        }
+        .badge-live {
+            background: var(--secondary);
+            color: white;
+            box-shadow: 0 4px 6px rgba(227, 0, 79, 0.3);
+            animation: pulse 1.5s infinite;
+        }
+        .badge-ft {
+            background: #34a853;
+            color: white;
+            box-shadow: 0 4px 6px rgba(52, 168, 83, 0.3);
+        }
+        .badge-aet {
+            background: #fbbc04;
+            color: #b06000;
+            box-shadow: 0 4px 6px rgba(251, 188, 4, 0.3);
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .countdown-badge {
+            display: inline-block;
+            background: #fff3cd;
+            color: #b06000;
+            font-size: 0.8em;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .loading {
+            text-align: center;
+            font-size: 1.2em;
+            color: var(--text-muted);
+            margin-top: 50px;
+        }
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--table-border);
+            border-top: 4px solid var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Search Input */
+        .search-input {
+            width: 100%;
+            padding: 14px 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--search-border);
+            border-radius: 30px;
+            font-size: 16px;
+            box-sizing: border-box;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            background: var(--card-bg);
+            color: var(--text);
+            transition: border-color 0.3s;
+        }
+        .search-input:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 6px 15px rgba(45, 0, 117, 0.12);
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .app-footer {
+            text-align: center;
+            padding: 40px 20px 20px;
+            color: var(--text-muted);
+            font-size: 0.9em;
+        }
+        .app-footer a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .app-footer a:hover {
+            text-decoration: underline;
+        }
+        .last-updated {
+            margin-top: 10px;
+            font-size: 0.85em;
+            color: #aaa;
+        }
+
+        /* Scroll to Top Button */
+        #scrollToTop {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
+            transition: transform 0.3s;
+        }
+        #scrollToTop:hover { transform: scale(1.1); }
+
+        /* ==========================================
+           Mobile Responsive Adjustments (360px - 500px)
+           ========================================== */
+        @media (max-width: 500px) {
+            header {
+                padding: 20px 15px;
+            }
+            header h1 {
+                font-size: 1.8em;
+            }
+            .tabs {
+                gap: 5px;
+            }
+            .tab-btn {
+                padding: 10px 5px;
+                font-size: 0.8em;
+                flex: 1; /* Makes tabs share equal width */
+                white-space: normal;
+                line-height: 1.2;
+            }
+            .grid {
+                /* Forces exactly 1 column on mobile, overriding the 450px JS inline styles */
+                grid-template-columns: 1fr !important;
+                gap: 15px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .card {
+                padding: 15px 10px; /* Reduce card padding to maximize table space */
+                width: 100%;
+                overflow: hidden;
+            }
+            .score-box {
+                font-size: 1.6em;
+            }
+            .group-table-wrapper {
+                width: 100%;
+                overflow-x: auto;
+            }
+            .group-table th, .group-table td {
+                padding: 6px 3px; /* Reduce padding inside the table to fit more content */
+                font-size: 0.8em; /* Slightly smaller font to fit more columns */
+            }
+            .form-ball {
+                width: 18px;
+                height: 18px;
+                font-size: 0.65em;
+            }
+            #scorers-table {
+                width: 100%;
+                min-width: 100%;
+            }
+            #scorers-table th, #scorers-table td {
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+            #scorers-table th:first-child, 
+            #scorers-table td:first-child {
+                padding-right: 15px;
+            }
+        }
+    </style>
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+</head>
+<body>
+
+    <header>
+        <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Dark Mode">🌙</button>
+        <h1>FIFA World Cup 2026™</h1>
+        <p>Live Fixtures & Group Standings</p>
+    </header>
+
+    <div class="container">
+        <div class="tabs-wrapper">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('fixtures')">Fixtures & Results</button>
+                <button class="tab-btn" onclick="switchTab('groups')">Group Teams</button>
+                <button class="tab-btn" onclick="switchTab('scorers')">Top Scorers</button>
+            </div>
+        </div>
+
+        <div id="loader" class="loading">
+            <div class="loader-spinner"></div>
+            <div>📡 Syncing live data...</div>
+        </div>
+
+        <!-- Fixtures Tab -->
+        <div id="fixtures" class="tab-content active">
+            <input type="text" id="search-fixtures" class="search-input" placeholder="🔍 Search teams, groups, or venues..." onkeyup="filterFixtures()">
+            <div id="fixtures-empty" style="display: none; text-align: center; color: #777; padding: 40px; font-weight: 500;">No fixtures found matching your search.</div>
+            <div class="grid" id="fixtures-grid"></div>
+        </div>
+
+        <!-- Groups Tab -->
+        <div id="groups" class="tab-content">
+            <div class="grid" id="groups-grid"></div>
+        </div>
+
+        <!-- Top Scorers Tab -->
+        <div id="scorers" class="tab-content">
+            <input type="text" id="search-scorers" class="search-input" placeholder="🔍 Search players or teams..." onkeyup="filterScorers()">
+            <div id="scorers-empty" style="display: none; text-align: center; color: #777; padding: 40px; font-weight: 500;">No scorers found matching your search.</div>
+            <div class="card" style="border-top-color: #fbbc04;"> <!-- Yellow accent for scorers -->
+                <div class="group-title" style="color: #b06000;">Top Goal Scorers</div>
+                <div class="group-table-wrapper">
+                    <table class="group-table" id="scorers-table"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button id="scrollToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Go to top">⬆️</button>
+
+    <footer class="app-footer">
+        Created by: <a href="mailto:ajeyadas@gmail.com">ajeyadas@gmail.com</a>
+        <div class="last-updated" id="last-updated">Last Updated: Syncing...</div>
+    </footer>
+
+    <script>
+        // ==========================================
+        // PASTE YOUR GOOGLE APPS SCRIPT URL HERE
+        // ==========================================
+        const API_URL = "https://script.google.com/macros/s/AKfycbyfm1yyYrR0Cb9T2e9WWU9CWKfSctw0hdtQSukOeZWn8YxL_y8UG3C4n3cko8jiBVcVSw/exec";
+
+        // Theme Toggle Logic
+        const themeToggleBtn = document.getElementById('themeToggle');
+        if (document.documentElement.getAttribute('data-theme') === 'dark' && themeToggleBtn) {
+            themeToggleBtn.innerText = '☀️';
+        }
+        
+        function toggleTheme() {
+            const root = document.documentElement;
+            if (root.getAttribute('data-theme') === 'dark') {
+                root.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                if (themeToggleBtn) themeToggleBtn.innerText = '🌙';
+            } else {
+                root.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                if (themeToggleBtn) themeToggleBtn.innerText = '☀️';
+            }
+        }
+
+        // Country Flag Mapping
+        const flagMap = {
+            "Argentina": "🇦🇷", "Australia": "🇦🇺", "Belgium": "🇧🇪", "Brazil": "🇧🇷",
+            "Canada": "🇨🇦", "Cameroon": "🇨🇲", "Colombia": "🇨🇴", "Costa Rica": "🇨🇷",
+            "Croatia": "🇭🇷", "Denmark": "🇩🇰", "Ecuador": "🇪🇨", "England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", 
+            "France": "🇫🇷", "Germany": "🇩🇪", "Ghana": "🇬🇭", "Iran": "🇮🇷", 
+            "Italy": "🇮🇹", "Japan": "🇯🇵", "Mexico": "🇲🇽", "Morocco": "🇲🇦", 
+            "Netherlands": "🇳🇱", "Nigeria": "🇳🇬", "Poland": "🇵🇱", "Portugal": "🇵🇹", 
+            "Qatar": "🇶🇦", "Saudi Arabia": "🇸🇦", "Senegal": "🇸🇳", "Serbia": "🇷🇸", 
+            "South Korea": "🇰🇷", "Spain": "🇪🇸", "Switzerland": "🇨🇭", "Tunisia": "🇹🇳", 
+            "Uruguay": "🇺🇾", "USA": "🇺🇸", "Wales": "🏴󠁧󠁢󠁷󠁬󠁳󠁿",
+            "Bosnia and Herzegovina": "🇧🇦", "Curaçao": "🇨🇼", "Paraguay": "🇵🇾", 
+            "South Africa": "🇿🇦", "Haiti": "🇭🇹", "Scotland": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "Türkiye": "🇹🇷", 
+            "Ivory Coast": "🇨🇮", "Sweden": "🇸🇪", "Egypt": "🇪🇬", "New Zealand": "🇳🇿", 
+            "Cape Verde": "🇨🇻", "Iraq": "🇮🇶", "Norway": "🇳🇴", "Algeria": "🇩🇿", 
+            "Austria": "🇦🇹", "Jordan": "🇯🇴", "Congo DR": "🇨🇩", "DR Congo": "🇨🇩", "Uzbekistan": "🇺🇿", 
+            "Panama": "🇵🇦", "Czechia": "🇨🇿"
+        };
+
+        // Helper function to inject flags into text
+        function addFlags(text) {
+            if (!text) return "";
+            let res = text.toString();
+            // Sort by length so longer names match first (e.g., 'South Korea' before 'Korea')
+            const countries = Object.keys(flagMap).sort((a, b) => b.length - a.length);
+            countries.forEach(country => {
+                const regex = new RegExp(`\\b${country}\\b`, 'gi');
+                res = res.replace(regex, `${flagMap[country]} ${country}`);
+            });
+            return res;
+        }
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Fetch Data from Google Sheets
+        async function fetchDashboardData() {
+            try {
+                // Add a cache buster timestamp to ensure live updates bypass browser caching
+                const response = await fetch(`${API_URL}?t=${new Date().getTime()}`);
+                const data = await response.json();
+                
+                document.getElementById('loader').style.display = 'none';
+                
+                renderFixtures(data.fixtures);
+                renderGroups(data.groups);
+                renderTopScorers(data.top_scorers);
+                
+                const now = new Date();
+                document.getElementById('last-updated').innerText = 'Last Updated: ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                document.getElementById('loader').innerHTML = "⚠️ Error loading data. Did you replace the API_URL?";
+            }
+        }
+
+        // Render Fixtures Cards
+        function renderFixtures(fixtures) {
+            const grid = document.getElementById('fixtures-grid');
+            grid.innerHTML = '';
+
+            const now = new Date();
+            const todayStr = now.toDateString();
+
+            const getMatchDate = (match) => {
+                if (!match['Date'] || match['Date'] === 'TBD') return null;
+                const d = new Date(match['Date']);
+                if (isNaN(d)) return null;
+                let matchDateObj = new Date(d.getTime());
+                let hasTime = false;
+                if (match['Time']) {
+                    let tStr = match['Time'].toString();
+                    if (tStr.includes('T') && !isNaN(new Date(tStr))) {
+                        const timeObj = new Date(tStr);
+                        matchDateObj.setHours(timeObj.getHours(), timeObj.getMinutes(), 0, 0);
+                        hasTime = true;
+                    } else {
+                        const timeMatch = tStr.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+                        if (timeMatch) {
+                            let h = parseInt(timeMatch[1], 10);
+                            let m = parseInt(timeMatch[2], 10);
+                            let ampm = timeMatch[3];
+                            if (ampm && ampm.toUpperCase() === 'PM' && h < 12) h += 12;
+                            if (ampm && ampm.toUpperCase() === 'AM' && h === 12) h = 0;
+                            matchDateObj.setHours(h, m, 0, 0);
+                            hasTime = true;
+                        }
+                    }
+                }
+                if (!hasTime) {
+                    let istValue = match['Time (IST)'] || match[' Time (IST)'];
+                    let formattedIst = istValue;
+                    if (istValue && istValue.toString().includes('T')) {
+                        const parsedDate = new Date(istValue);
+                        if (!isNaN(parsedDate)) {
+                            formattedIst = parsedDate.toLocaleTimeString([], { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' });
+                        }
+                    }
+                    if (formattedIst) {
+                        const timeMatch = formattedIst.toString().match(/(\d+):(\d+)\s*(AM|PM)?/i);
+                        if (timeMatch) {
+                            let h = parseInt(timeMatch[1], 10);
+                            let m = parseInt(timeMatch[2], 10);
+                            let ampm = timeMatch[3];
+                            if (ampm && ampm.toUpperCase() === 'PM' && h < 12) h += 12;
+                            if (ampm && ampm.toUpperCase() === 'AM' && h === 12) h = 0;
+                            
+                            const istDateString = d.toLocaleDateString("en-US", { timeZone: "Asia/Kolkata" });
+                            const parts = istDateString.split('/');
+                            if (parts.length === 3) {
+                                const year = parseInt(parts[2], 10);
+                                const month = parseInt(parts[0], 10) - 1; // JS months are 0-indexed
+                                const day = parseInt(parts[1], 10);
+                                const utcMs = Date.UTC(year, month, day, h, m);
+                                matchDateObj = new Date(utcMs - (5.5 * 60 * 60 * 1000));
+                            }
+                        }
+                    }
+                }
+                return matchDateObj;
+            };
+
+            const sortedFixtures = [...fixtures].sort((a, b) => {
+                const statA = (a['Status'] || "").toString().toLowerCase();
+                const statB = (b['Status'] || "").toString().toLowerCase();
+                const isLiveA = statA.includes('live') || statA.includes('in play') || statA.includes('in progress');
+                const isLiveB = statB.includes('live') || statB.includes('in play') || statB.includes('in progress');
+
+                if (isLiveA && !isLiveB) return -1;
+                if (!isLiveA && isLiveB) return 1;
+
+                const dateA = getMatchDate(a);
+                const dateB = getMatchDate(b);
+
+                if (!dateA && dateB) return 1;
+                if (dateA && !dateB) return -1;
+                if (!dateA && !dateB) return 0;
+
+                const catA = dateA.toDateString() === todayStr ? 1 : (dateA > now ? 2 : 3);
+                const catB = dateB.toDateString() === todayStr ? 1 : (dateB > now ? 2 : 3);
+
+                if (catA !== catB) return catA - catB;
+
+                if (catA === 3) return dateB - dateA; // Past matches: most recent first
+                return dateA - dateB; // Today & Future: upcoming first
+            });
+
+            sortedFixtures.forEach(match => {
+                const status = (match['Status'] || "").toString(); // Keep original case
+                const lowerStatus = status.toLowerCase();
+                const isLive = lowerStatus.includes('live') || lowerStatus.includes('in play') || lowerStatus.includes('in progress') || /\d+'/.test(lowerStatus) || lowerStatus.includes('half') || lowerStatus.includes('ht');
+                const isFinished = lowerStatus.includes('ft') || lowerStatus.includes('full') || lowerStatus.includes('finish') || lowerStatus.includes('end') || lowerStatus.includes('aet') || lowerStatus.includes('pen');
+                const hasStarted = isLive || isFinished || lowerStatus.includes('ht') || lowerStatus.includes('half');
+                
+                let scoreHtml = '';
+                if (hasStarted) {
+                    const homeScore = match['Home Score'] !== undefined && match['Home Score'] !== '' ? match['Home Score'] : "-";
+                    const awayScore = match['Away Score'] !== undefined && match['Away Score'] !== '' ? match['Away Score'] : "-";
+                    scoreHtml = `
+                        <div class="score-box">
+                            <span>${homeScore}</span>
+                            <span class="score-dash">:</span>
+                            <span>${awayScore}</span>
+                        </div>
+                    `;
+                } else {
+                    scoreHtml = '';
+                }
+
+                let matchupDisplay = match['Matchup'] || 'TBD';
+                let penaltyHtml = '';
+                let winner = null; // 'home' or 'away'
+
+                if (isFinished) {
+                    const hScoreRaw = match['Home Score'] !== undefined && match['Home Score'] !== null ? match['Home Score'].toString() : '';
+                    const aScoreRaw = match['Away Score'] !== undefined && match['Away Score'] !== null ? match['Away Score'].toString() : '';
+                    
+                    const hScore = parseInt(hScoreRaw, 10);
+                    const aScore = parseInt(aScoreRaw, 10);
+
+                    let penH = null;
+                    let penA = null;
+
+                    // 1. Check if scores have penalty numbers directly in them e.g. "1 (5)"
+                    const hPenMatch = hScoreRaw.match(/\((\d+)\)/);
+                    const aPenMatch = aScoreRaw.match(/\((\d+)\)/);
+
+                    if (hPenMatch && aPenMatch) {
+                        penH = parseInt(hPenMatch[1], 10);
+                        penA = parseInt(aPenMatch[1], 10);
+                    } 
+                    // 2. Check if status has penalty score e.g. "AET (5-4 pens)", "Penalties 5-4", "AET 5-4"
+                    else {
+                        const penaltyMatch = status.match(/(\d+)\s*-\s*(\d+)/);
+                        if (penaltyMatch && (lowerStatus.includes('pen') || lowerStatus.includes('aet') || lowerStatus.includes('shootout'))) {
+                            penH = parseInt(penaltyMatch[1], 10);
+                            penA = parseInt(penaltyMatch[2], 10);
+                        }
+                    }
+
+                    if (penH !== null && penA !== null) {
+                        penaltyHtml = `<div class="goal-scorers" style="font-weight: bold; color: var(--secondary);">⚽ Penalties: ${penH}-${penA}</div>`;
+                        if (penH > penA) winner = 'home';
+                        else if (penA > penH) winner = 'away';
+                    } 
+                    // 3. Fallback to explicit status text
+                    else if (lowerStatus.includes('home win') || lowerStatus.includes('home adv')) {
+                        winner = 'home';
+                        penaltyHtml = `<div class="goal-scorers" style="font-weight: bold; color: var(--secondary);">⚽ Won on Penalties</div>`;
+                    } else if (lowerStatus.includes('away win') || lowerStatus.includes('away adv')) {
+                        winner = 'away';
+                        penaltyHtml = `<div class="goal-scorers" style="font-weight: bold; color: var(--secondary);">⚽ Won on Penalties</div>`;
+                    } else if (!isNaN(hScore) && !isNaN(aScore) && hScore !== aScore) {
+                        // Determine winner from regular score if no penalties
+                        if (hScore > aScore) winner = 'home';
+                        else winner = 'away';
+                    }
+                }
+
+                if (winner) {
+                    let separatorMatch = matchupDisplay.match(/\s+v[s]?\.?\s+/i) || matchupDisplay.match(/\s*-\s*/);
+                    if (separatorMatch) {
+                        const separator = separatorMatch[0];
+                        const parts = matchupDisplay.split(separator);
+                        if (parts.length === 2) {
+                            if (winner === 'home') {
+                                parts[0] = `<span class="match-winner">${parts[0].trim()}</span>`;
+                            } else {
+                                parts[1] = `<span class="match-winner">${parts[1].trim()}</span>`;
+                            }
+                            matchupDisplay = parts[0] + separator + parts[1];
+                        }
+                    }
+                }
+
+                let dateStr = match['Date'] || 'TBD';
+                let matchDateObj = null;
+                let isDateOnly = false;
+                
+                let istValue = match['Time (IST)'] || match[' Time (IST)'];
+                let formattedIst = istValue;
+                if (istValue && istValue.toString().includes('T')) {
+                    const parsedDate = new Date(istValue);
+                    if (!isNaN(parsedDate)) {
+                        formattedIst = parsedDate.toLocaleTimeString([], { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' });
+                    }
+                }
+
+                if (dateStr !== 'TBD') {
+                    const d = new Date(dateStr);
+                    if (!isNaN(d)) {
+                        matchDateObj = new Date(d.getTime());
+                        // Check if time is exactly midnight (which happens if only a Date was entered in Google Sheets)
+                        if (d.getHours() === 0 && d.getMinutes() === 0) {
+                            dateStr = d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+                            isDateOnly = true;
+                        } else {
+                            dateStr = d.toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                        }
+                        
+                        // If you happen to have a separate "Time" column in your sheet, this will append it
+                        let hasTime = false;
+                        if (match['Time']) {
+                            let tStr = match['Time'].toString();
+                            if (tStr.includes('T') && !isNaN(new Date(tStr))) {
+                                const timeObj = new Date(tStr);
+                                matchDateObj.setHours(timeObj.getHours(), timeObj.getMinutes(), 0, 0);
+                                tStr = timeObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                dateStr = d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }) + ', ' + tStr;
+                                isDateOnly = false;
+                                hasTime = true;
+                            } else {
+                                const timeMatch = tStr.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+                                if (timeMatch) {
+                                    let h = parseInt(timeMatch[1], 10);
+                                    let m = parseInt(timeMatch[2], 10);
+                                    let ampm = timeMatch[3];
+                                    if (ampm && ampm.toUpperCase() === 'PM' && h < 12) h += 12;
+                                    if (ampm && ampm.toUpperCase() === 'AM' && h === 12) h = 0;
+                                    matchDateObj.setHours(h, m, 0, 0);
+                                    tStr = matchDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                    dateStr = d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }) + ', ' + tStr;
+                                    isDateOnly = false;
+                                    hasTime = true;
+                                }
+                            }
+                        }
+
+                        if (!hasTime && formattedIst) {
+                            const timeMatch = formattedIst.toString().match(/(\d+):(\d+)\s*(AM|PM)?/i);
+                            if (timeMatch) {
+                                let h = parseInt(timeMatch[1], 10);
+                                let m = parseInt(timeMatch[2], 10);
+                                let ampm = timeMatch[3];
+                                if (ampm && ampm.toUpperCase() === 'PM' && h < 12) h += 12;
+                                if (ampm && ampm.toUpperCase() === 'AM' && h === 12) h = 0;
+                                
+                                const istDateString = d.toLocaleDateString("en-US", { timeZone: "Asia/Kolkata" });
+                                const parts = istDateString.split('/');
+                                if (parts.length === 3) {
+                                    const year = parseInt(parts[2], 10);
+                                    const month = parseInt(parts[0], 10) - 1;
+                                    const day = parseInt(parts[1], 10);
+                                    const utcMs = Date.UTC(year, month, day, h, m);
+                                    matchDateObj = new Date(utcMs - (5.5 * 60 * 60 * 1000));
+                                    isDateOnly = false;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                let countdownHtml = '';
+                if (matchDateObj && !hasStarted) {
+                    const now = new Date();
+                    const diffMs = matchDateObj - now;
+                    const diffHours = diffMs / (1000 * 60 * 60);
+                    
+                    // For matches that have an exact time and happen within 24 hours
+                    if (!isDateOnly && diffHours > 0 && diffHours <= 24) {
+                        const h = Math.floor(diffHours);
+                        const m = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                        let timeStr = '';
+                        if (h > 0) timeStr += `${h} hr `;
+                        timeStr += `${m} min`;
+                        countdownHtml = `<div style="text-align: center; margin-bottom: 12px;"><span class="countdown-badge">⏳ Starts in ${timeStr.trim()}</span></div>`;
+                    } 
+                    // For matches missing a specific time, elegantly just show "Match Today" or "Starts Tomorrow"
+                    else if (isDateOnly) {
+                        const isToday = matchDateObj.toDateString() === now.toDateString();
+                        
+                        const tomorrow = new Date(now);
+                        tomorrow.setDate(tomorrow.getDate() + 1);
+                        const isTomorrow = matchDateObj.toDateString() === tomorrow.toDateString();
+
+                        if (isToday) {
+                            countdownHtml = `<div style="text-align: center; margin-bottom: 12px;"><span class="countdown-badge">⏳ Match Today</span></div>`;
+                        } else if (isTomorrow) {
+                            countdownHtml = `<div style="text-align: center; margin-bottom: 12px;"><span class="countdown-badge">⏳ Starts Tomorrow</span></div>`;
+                        }
+                    }
+                }
+
+                const timeIstStr = formattedIst ? ` | 🇮🇳 ${formattedIst} IST` : '';
+
+                const goalScorers = match['Goal Scorers'] ? `<div class="goal-scorers">⚽ ${addFlags(match['Goal Scorers'])}</div>` : '';
+                const cards = match['Cards'] ? `<div class="cards-info">${addFlags(match['Cards'])}</div>` : '';
+                
+                const card = document.createElement('div');
+                card.className = isLive ? 'card live-match' : 'card';
+                
+                const isAetOrPen = lowerStatus.includes('aet') || lowerStatus.includes('120') || lowerStatus.includes('extra time') || lowerStatus.includes('pen');
+
+                // Status-based color-coding for match cards
+                if (isFinished) {
+                    card.style.borderTopColor = isAetOrPen ? '#fbbc04' : '#34a853'; // Yellow for AET, Green for FT
+                } else if (!isLive) {
+                    card.style.borderTopColor = '#4285f4'; // Blue for upcoming
+                }
+
+                let statusBadgeHTML = '';
+                if (isLive) {
+                    statusBadgeHTML = `<div class="status-badge badge-live">🔴 LIVE</div>`;
+                } else if (isFinished) {
+                    if (isAetOrPen) {
+                        statusBadgeHTML = `<div class="status-badge badge-aet">AET</div>`;
+                    } else {
+                        statusBadgeHTML = `<div class="status-badge badge-ft">FT</div>`;
+                    }
+                }
+
+                card.innerHTML = `
+                    ${statusBadgeHTML}
+                    <div class="meta">
+                        <span>🗓️ ${dateStr}${timeIstStr}</span>
+                        <span>${match['Group'] || ''}</span>
+                    </div>
+                    ${countdownHtml}
+                    <div class="matchup">${addFlags(matchupDisplay)}</div>
+                    ${scoreHtml}
+                    ${penaltyHtml}
+                    <div class="venue">📍 ${match['Venue'] || ''}, ${match['City'] || ''}</div>
+                    ${goalScorers}
+                    ${cards}
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Render Groups Cards
+        function renderGroups(groups) {
+            const grid = document.getElementById('groups-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            
+            if (groups.length === 0) return;
+
+            const headers = Object.keys(groups[0]);
+            // Auto-detect the Group column
+            const groupCol = headers.find(h => h.toLowerCase().includes('group')) || headers[0];
+            
+            const otherKeys = headers.filter(h => h !== groupCol);
+
+            // Make the group grid items wider to accommodate the tables
+            grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(450px, 1fr))';
+
+            const groupedData = {};
+            groups.forEach(row => {
+                const g = row[groupCol];
+                if (!groupedData[g]) groupedData[g] = [];
+                groupedData[g].push(row);
+            });
+
+            Object.keys(groupedData).forEach(gName => {
+                // Auto-sort teams by Points (and then Goal Difference if tied)
+                const ptsCol = otherKeys.find(k => k.toLowerCase() === 'pts' || k.toLowerCase() === 'points');
+                const diffCol = otherKeys.find(k => k.toLowerCase() === 'diff.' || k.toLowerCase() === 'diff' || k.toLowerCase() === 'gd');
+                
+                if (ptsCol) {
+                    groupedData[gName].sort((a, b) => {
+                        const ptsA = parseInt(a[ptsCol]) || 0;
+                        const ptsB = parseInt(b[ptsCol]) || 0;
+                        if (ptsB !== ptsA) return ptsB - ptsA; // Sort by Points descending
+                        
+                        if (diffCol) {
+                            const diffA = parseInt(a[diffCol]) || 0;
+                            const diffB = parseInt(b[diffCol]) || 0;
+                            return diffB - diffA; // Tiebreaker: Goal Difference descending
+                        }
+                        return 0;
+                    });
+                }
+
+                const card = document.createElement('div');
+                card.className = 'card group-card';
+                
+                let thHtml = `<th>#</th>` + otherKeys.map(k => `<th>${k}</th>`).join('');
+                
+                let trHtml = groupedData[gName].map((row, index) => {
+                    // Format Qualification Status: top 2 advance, 3rd place possible
+                    let rowClass = "";
+                    if (index === 0) rowClass = "qualify-direct group-leader";
+                    else if (index === 1) rowClass = "qualify-direct";
+                    else if (index === 2) rowClass = "qualify-possible";
+
+                    let tdHtml = `<td>${index + 1}</td>`;
+
+                    tdHtml += otherKeys.map(k => {
+                        let val = row[k] !== undefined && row[k] !== null ? row[k] : "";
+                        let alignClass = "text-center";
+                        
+                        if (k.toLowerCase().includes('team') || k === otherKeys[0]) {
+                            val = addFlags(val.toString());
+                            if (index === 0) {
+                                val += ' <span title="Group Leader" style="cursor: help; font-size: 1.1em;">👑</span>';
+                            } else if (index > 2) {
+                                val += ' <span title="Eliminated" style="cursor: help; font-size: 1.1em;">❌</span>';
+                            }
+                            alignClass = "text-left font-bold";
+                        } else if (k.toLowerCase() === 'form') {
+                            // Turn strings like "W, L, D, ?" into colored circles
+                            const balls = val.toString().split('').filter(c => c.trim() && c !== ',').map(c => {
+                                let char = c.toUpperCase();
+                                let bgClass = char === 'W' ? 'form-w' : (char === 'L' ? 'form-l' : (char === 'D' ? 'form-d' : 'form-u'));
+                                return `<div class="form-ball ${bgClass}">${char}</div>`;
+                            }).join('');
+                            val = `<div class="form-balls">${balls}</div>`;
+                        }
+                        return `<td class="${alignClass}">${val}</td>`;
+                    }).join('');
+
+                    return `<tr class="${rowClass}">${tdHtml}</tr>`;
+                }).join('');
+
+                card.innerHTML = `
+                    <div class="group-title">${gName}</div>
+                    <div class="group-table-wrapper">
+                        <table class="group-table">
+                            <thead>
+                                <tr>${thHtml}</tr>
+                            </thead>
+                            <tbody>
+                                ${trHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            // Append Qualification Legend
+            const legend = document.createElement('div');
+            legend.className = 'legend';
+            legend.innerHTML = `
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #34a853;"></div> 
+                    <span>Qualification to next stage</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #fbbc04;"></div> 
+                    <span>Possible Qualification to next stage</span>
+                </div>
+                    <div class="legend-item">
+                        <span>👑 Group Leader</span>
+                    </div>
+                    <div class="legend-item">
+                        <span>❌ Eliminated</span>
+                    </div>
+            `;
+            grid.appendChild(legend);
+        }
+
+        // Render Top Scorers Table
+        function renderTopScorers(scorers) {
+            const table = document.getElementById('scorers-table');
+            if (!table) return;
+
+            if (!scorers || scorers.length === 0) {
+                table.innerHTML = '<tbody><tr><td colspan="4" class="text-center" style="padding: 20px;">No top scorer data available yet.</td></tr></tbody>';
+                return;
+            }
+
+            const headers = Object.keys(scorers[0]);
+            let tableHtml = '<thead><tr>';
+            headers.forEach(h => {
+                let alignClass = 'text-center'; // Default alignment for headers
+                if (h.toLowerCase().includes('player') || h.toLowerCase().includes('team')) {
+                    alignClass = 'text-left'; // Left-align Player and Team headers
+                }
+                tableHtml += `<th class="${alignClass}">${h}</th>`;
+            });
+            tableHtml += '</tr></thead><tbody>';
+
+            scorers.forEach(player => {
+                tableHtml += '<tr>';
+                headers.forEach(h => {
+                    let val = player[h];
+                    let alignClass = 'text-center';
+                    if (h.toLowerCase().includes('player') || h.toLowerCase().includes('team')) {
+                        val = addFlags(val); // Use existing flag helper
+                        alignClass = 'text-left font-bold';
+
+                    // Add Golden Boot icon for the #1 ranked player
+                    if (h.toLowerCase().includes('player') && player['Rank'] == 1) {
+                        val += ' <span title="Golden Boot Leader" style="cursor: help; font-size: 1.1em;">🥇</span>';
+                    }
+                    }
+                    if (h.toLowerCase().includes('rank') || h.toLowerCase().includes('goals')) {
+                        alignClass = 'text-center font-bold';
+                    }
+                    tableHtml += `<td class="${alignClass}">${val}</td>`;
+                });
+                tableHtml += '</tr>';
+            });
+            tableHtml += '</tbody>';
+            table.innerHTML = tableHtml;
+        }
+
+        // Search Filter Logic
+        function filterFixtures() {
+            const query = document.getElementById('search-fixtures').value.toLowerCase();
+            const cards = document.querySelectorAll('#fixtures-grid .card');
+            let matchCount = 0;
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                if (text.includes(query)) {
+                    card.style.display = '';
+                    matchCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            document.getElementById('fixtures-empty').style.display = matchCount === 0 ? 'block' : 'none';
+        }
+
+        function filterScorers() {
+            const query = document.getElementById('search-scorers').value.toLowerCase();
+            const rows = document.querySelectorAll('#scorers-table tbody tr');
+            let matchCount = 0;
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                if (text.includes(query)) {
+                    row.style.display = '';
+                    matchCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('scorers-empty').style.display = matchCount === 0 ? 'block' : 'none';
+            const tableCard = document.querySelector('#scorers .card');
+            if (tableCard) {
+                tableCard.style.display = matchCount === 0 ? 'none' : 'block';
+            }
+        }
+
+        // Scroll to Top visibility logic
+        window.onscroll = function() {
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                document.getElementById("scrollToTop").style.display = "block";
+            } else {
+                document.getElementById("scrollToTop").style.display = "none";
+            }
+        };
+
+        // Initialize App & Fetch Data Immediately
+        fetchDashboardData();
+        
+        // Auto-refresh data in the background every 5 minutes (300,000 milliseconds)
+        setInterval(fetchDashboardData, 300000);
+    </script>
+</body>
+</html>
