@@ -23,12 +23,12 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests gspread oauth2client
+          pip install requests "gspread<6.0.0" oauth2client
 
       - name: Create credentials.json securely and Run Script
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
         run: |
-          echo "$GOOGLE_CREDENTIALS" > src/main/java/com/google/credentials.json
+          printf "%s" "$GOOGLE_CREDENTIALS" > src/main/java/com/google/credentials.json
           cd src/main/java/com/google/
           python update_dashboard.py
