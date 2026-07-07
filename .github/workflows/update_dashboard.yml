@@ -29,6 +29,6 @@ jobs:
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
         run: |
-          printf "%s" "$GOOGLE_CREDENTIALS" > src/main/java/com/google/credentials.json
-          cd src/main/java/com/google/
+          printf "%s" "$GOOGLE_CREDENTIALS" > credentials.json
           python update_dashboard.py
+
