@@ -7,17 +7,17 @@
     
     <!-- Open Graph / WhatsApp / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://fifawc2026-ajeya.netlify.app/">
+    <meta property="og:url" content="https://ajeyadas.github.io/fifa-wc-2026-dashboard/">
     <meta property="og:title" content="FIFA World Cup 2026™ Live Dashboard">
     <meta property="og:description" content="Track live scores, fixtures, group standings, and top scorers for the 2026 FIFA World Cup. Updates automatically!">
-    <meta property="og:image" content="https://cronkitenews.azpbs.org/wp-content/uploads/2026/04/worldcupball.jpg">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1522778119026-d647f0596c20?q=80&w=1200&auto=format&fit=crop">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://fifawc2026-ajeya.netlify.app/">
+    <meta name="twitter:url" content="https://ajeyadas.github.io/fifa-wc-2026-dashboard/">
     <meta name="twitter:title" content="FIFA World Cup 2026™ Live Dashboard">
     <meta name="twitter:description" content="Track live scores, fixtures, group standings, and top scorers for the 2026 FIFA World Cup. Updates automatically!">
-    <meta name="twitter:image" content="https://cronkitenews.azpbs.org/wp-content/uploads/2026/04/worldcupball.jpg">
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1522778119026-d647f0596c20?q=80&w=1200&auto=format&fit=crop">
 
     <style>
         :root {
@@ -41,29 +41,6 @@
             --search-border: #e0e0e0;
             --card-shadow: rgba(0,0,0,0.05);
             --bg-overlay: linear-gradient(rgba(225, 228, 232, 0.90), rgba(220, 223, 228, 0.95));
-        }
-
-        [data-theme="dark"] {
-            --primary: #ffffff;
-            --secondary: #ff4d88;
-            --accent: #b366ff;
-            --bg: #121212;
-            --card-bg: #1e1e1e;
-            --text: #f0f0f0;
-            --text-muted: #aaaaaa;
-            --tab-bg: #2d2d2d;
-            --tab-text: #bbbbbb;
-            --tab-hover: #3d3d3d;
-            --table-th-bg: #252525;
-            --table-border: #333333;
-            --table-even: #222222;
-            --table-hover: #2a3b4c;
-            --venue-bg: #2d2d2d;
-            --leader-bg: #1a2e20;
-            --live-bg: #3a101d;
-            --search-border: #444444;
-            --card-shadow: rgba(0,0,0,0.3);
-            --bg-overlay: linear-gradient(rgba(18, 18, 18, 0.90), rgba(18, 18, 18, 0.95));
         }
 
         body {
@@ -98,24 +75,6 @@
             text-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
 
-        .theme-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 1.2em;
-            cursor: pointer;
-            transition: background 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .theme-toggle:hover { background: rgba(255, 255, 255, 0.3); }
-
         .container {
             max-width: 1200px;
             margin: 30px auto;
@@ -135,6 +94,7 @@
             display: flex;
             justify-content: center;
             gap: 15px;
+            padding-bottom: 10px;
         }
 
         .tab-btn {
@@ -147,6 +107,20 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%) scaleX(0);
+            width: 50%;
+            height: 4px;
+            background-color: var(--secondary);
+            border-radius: 4px;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .tab-btn:hover:not(.active) {
@@ -159,6 +133,22 @@
             color: var(--bg);
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
+        
+        .tab-btn.active::after {
+            transform: translateX(-50%) scaleX(1);
+        }
+
+        .live-pulse-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #ff4d4d;
+            border-radius: 50%;
+            margin-left: 6px;
+            vertical-align: middle;
+            box-shadow: 0 0 8px rgba(255, 77, 77, 0.8);
+            animation: pulse 1s infinite;
+        }
 
         .tab-content {
             display: none;
@@ -166,7 +156,7 @@
 
         .tab-content.active {
             display: block;
-            animation: fadeIn 0.4s ease-in-out;
+            animation: tabEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         /* Fixtures Grid */
@@ -186,6 +176,50 @@
             transition: transform 0.2s ease;
             min-width: 0; /* Prevents grid blowout on mobile */
             box-sizing: border-box;
+        }
+
+        .card.hero-live-card {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, var(--accent), var(--secondary)) !important;
+            color: white !important;
+            border: none !important;
+            box-shadow: 0 8px 25px rgba(200, 0, 70, 0.5);
+            transform: scale(1.01);
+        }
+
+        .card.hero-live-card:hover {
+            transform: scale(1.02) !important;
+        }
+
+        /* Overrides for text inside the colorful hero card */
+        .card.hero-live-card .meta,
+        .card.hero-live-card .score-dash,
+        .card.hero-live-card .cards-info {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .card.hero-live-card .matchup {
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.7), 0 0 25px rgba(255, 255, 255, 0.4);
+        }
+        .card.hero-live-card .goal-scorers {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+        .card.hero-live-card .score-box {
+            color: white;
+        }
+        .card.hero-live-card .score-box span:not(.score-dash) {
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        .card.hero-live-card .venue {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+        .card.hero-live-card .penalty-accent {
+            color: #ffb3c6; /* Lighter pink for visibility against dark bg */
+        }
+        .card.hero-live-card .match-winner {
+            color: #81c995; /* Brighter green for visibility against dark bg */
         }
 
         .card:hover {
@@ -214,6 +248,11 @@
             font-weight: bold;
         }
 
+        .faded-team {
+            opacity: 0.4;
+            filter: grayscale(100%);
+        }
+
         .score-box {
             display: flex;
             justify-content: center;
@@ -229,6 +268,12 @@
             color: var(--text-muted);
         }
 
+        .penalty-accent {
+            color: var(--secondary);
+            font-size: 0.6em;
+            vertical-align: super;
+        }
+
         .venue {
             text-align: center;
             font-size: 0.85em;
@@ -238,6 +283,18 @@
             padding: 10px;
             border-radius: 8px;
             font-weight: 500;
+        }
+
+        .stage-header {
+            grid-column: 1 / -1;
+            background: var(--accent);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: 800;
+            margin-top: 15px;
+            text-transform: uppercase;
         }
 
         /* Group Cards */
@@ -375,6 +432,93 @@
             color: var(--text-muted);
             margin-top: 6px;
         }
+        
+        /* Bracket Styles */
+        .bracket-container {
+            display: flex;
+            flex-direction: row;
+            overflow-x: auto;
+            gap: 30px;
+            padding: 20px 0;
+            align-items: center;
+        }
+        .bracket-round {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 250px;
+        }
+        .bracket-match {
+            background: var(--card-bg);
+            border: 1px solid var(--table-border);
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 2px 4px var(--card-shadow);
+            text-align: center;
+            font-size: 0.9em;
+            border-left: 4px solid var(--accent);
+            position: relative;
+        }
+        .bracket-match .team {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 8px;
+            border-bottom: 1px solid var(--table-border);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 4px;
+        }
+        .bracket-match .team:last-child {
+            border-bottom: none;
+        }
+        .bracket-match .team:hover {
+            background-color: var(--table-hover);
+        }
+        /* Bracket Path Highlighting */
+        .bracket-container.path-active .bracket-match {
+            opacity: 0.3;
+            filter: grayscale(100%);
+            transition: all 0.3s ease;
+        }
+        .bracket-container.path-active .bracket-match.has-highlighted-team {
+            opacity: 1;
+            filter: none;
+            border-color: var(--secondary);
+            box-shadow: 0 4px 15px rgba(200, 0, 70, 0.3);
+            transform: scale(1.02);
+        }
+        .bracket-container.path-active .team.highlighted-team {
+            background-color: var(--secondary);
+            color: white;
+        }
+        /* Bracket Connecting Lines */
+        .bracket-round:not(:last-child) .bracket-match::after {
+            content: '';
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 15px;
+            height: 2px;
+            background-color: var(--table-border);
+        }
+        .bracket-round:not(:first-child) .bracket-match::before {
+            content: '';
+            position: absolute;
+            left: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 15px;
+            height: 2px;
+            background-color: var(--table-border);
+        }
+        .bracket-container.path-active .bracket-match.has-highlighted-team::after,
+        .bracket-container.path-active .bracket-match.has-highlighted-team::before {
+            background-color: var(--secondary);
+            height: 3px;
+            z-index: 1;
+        }
 
         /* Top Scorers Table Spacing Fixes */
         #scorers-table {
@@ -477,9 +621,9 @@
             transform: translateY(-2px);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes tabEnter {
+            0% { opacity: 0; transform: translateY(20px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .app-footer {
@@ -584,17 +728,10 @@
             }
         }
     </style>
-    <script>
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-        }
-    </script>
 </head>
 <body>
 
     <header>
-        <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Dark Mode">🌙</button>
         <h1>FIFA World Cup 2026™</h1>
         <p>Live Fixtures & Group Standings</p>
     </header>
@@ -603,8 +740,9 @@
         <div class="tabs-wrapper">
             <div class="tabs">
                 <button class="tab-btn active" onclick="switchTab('fixtures')">Fixtures & Results</button>
-                <button class="tab-btn" onclick="switchTab('groups')">Group Teams</button>
+                <button class="tab-btn" onclick="switchTab('bracket')">Knockout Bracket</button>
                 <button class="tab-btn" onclick="switchTab('scorers')">Top Scorers</button>
+                <button class="tab-btn" onclick="switchTab('groups')">Groups (Archived)</button>
             </div>
         </div>
 
@@ -620,9 +758,9 @@
             <div class="grid" id="fixtures-grid"></div>
         </div>
 
-        <!-- Groups Tab -->
-        <div id="groups" class="tab-content">
-            <div class="grid" id="groups-grid"></div>
+        <!-- Bracket Tab -->
+        <div id="bracket" class="tab-content">
+            <div class="bracket-container" id="bracket-grid"></div>
         </div>
 
         <!-- Top Scorers Tab -->
@@ -635,6 +773,11 @@
                     <table class="group-table" id="scorers-table"></table>
                 </div>
             </div>
+        </div>
+
+        <!-- Groups Tab -->
+        <div id="groups" class="tab-content">
+            <div class="grid" id="groups-grid"></div>
         </div>
     </div>
 
@@ -650,25 +793,8 @@
         // PASTE YOUR GOOGLE APPS SCRIPT URL HERE
         // ==========================================
         const API_URL = "https://script.google.com/macros/s/AKfycbyfm1yyYrR0Cb9T2e9WWU9CWKfSctw0hdtQSukOeZWn8YxL_y8UG3C4n3cko8jiBVcVSw/exec";
-
-        // Theme Toggle Logic
-        const themeToggleBtn = document.getElementById('themeToggle');
-        if (document.documentElement.getAttribute('data-theme') === 'dark' && themeToggleBtn) {
-            themeToggleBtn.innerText = '☀️';
-        }
         
-        function toggleTheme() {
-            const root = document.documentElement;
-            if (root.getAttribute('data-theme') === 'dark') {
-                root.removeAttribute('data-theme');
-                localStorage.setItem('theme', 'light');
-                if (themeToggleBtn) themeToggleBtn.innerText = '🌙';
-            } else {
-                root.setAttribute('data-theme', 'dark');
-                localStorage.setItem('theme', 'dark');
-                if (themeToggleBtn) themeToggleBtn.innerText = '☀️';
-            }
-        }
+        let currentHighlightedTeam = null;
 
         // Country Flag Mapping
         const flagMap = {
@@ -722,6 +848,7 @@
                 
                 renderFixtures(data.fixtures);
                 renderGroups(data.groups);
+                renderBracket(data.fixtures);
                 renderTopScorers(data.top_scorers);
                 
                 const now = new Date();
@@ -736,6 +863,17 @@
         function renderFixtures(fixtures) {
             const grid = document.getElementById('fixtures-grid');
             grid.innerHTML = '';
+
+            // Update Live Pulse Indicator
+            const fixturesTabBtn = document.querySelector('.tab-btn[onclick="switchTab(\'fixtures\')"]');
+            if (fixturesTabBtn) {
+                const hasLive = fixtures.some(match => {
+                    const lowerStatus = (match['Status'] || "").toString().toLowerCase();
+                    return lowerStatus.includes('live') || lowerStatus.includes('in play') || lowerStatus.includes('in progress') || /\d+'/.test(lowerStatus) || lowerStatus.includes('half') || lowerStatus.includes('ht');
+                });
+                
+                fixturesTabBtn.innerHTML = hasLive ? 'Fixtures & Results <span class="live-pulse-dot" title="Live Matches"></span>' : 'Fixtures & Results';
+            }
 
             const now = new Date();
             const todayStr = now.toDateString();
@@ -823,6 +961,8 @@
                 return dateA - dateB; // Today & Future: upcoming first
             });
 
+            let currentStage = '';
+
             sortedFixtures.forEach(match => {
                 const status = (match['Status'] || "").toString(); // Keep original case
                 const lowerStatus = status.toLowerCase();
@@ -878,6 +1018,13 @@
 
                     if (penH !== null && penA !== null) {
                         penaltyHtml = `<div class="goal-scorers" style="font-weight: bold; color: var(--secondary);">⚽ Penalties: ${penH}-${penA}</div>`;
+                        scoreHtml = `
+                            <div class="score-box">
+                                <span>${hScore} <span class="penalty-accent">(${penH})</span></span>
+                                <span class="score-dash">:</span>
+                                <span><span class="penalty-accent">(${penA})</span> ${aScore}</span>
+                            </div>
+                        `;
                         if (penH > penA) winner = 'home';
                         else if (penA > penH) winner = 'away';
                     } 
@@ -903,7 +1050,9 @@
                         if (parts.length === 2) {
                             if (winner === 'home') {
                                 parts[0] = `<span class="match-winner">${parts[0].trim()}</span>`;
+                                parts[1] = `<span class="faded-team">${parts[1].trim()}</span>`;
                             } else {
+                                parts[0] = `<span class="faded-team">${parts[0].trim()}</span>`;
                                 parts[1] = `<span class="match-winner">${parts[1].trim()}</span>`;
                             }
                             matchupDisplay = parts[0] + separator + parts[1];
@@ -1025,7 +1174,7 @@
                 const cards = match['Cards'] ? `<div class="cards-info">${addFlags(match['Cards'])}</div>` : '';
                 
                 const card = document.createElement('div');
-                card.className = isLive ? 'card live-match' : 'card';
+                card.className = isLive ? 'card live-match hero-live-card' : 'card';
                 
                 const isAetOrPen = lowerStatus.includes('aet') || lowerStatus.includes('120') || lowerStatus.includes('extra time') || lowerStatus.includes('pen');
 
@@ -1034,6 +1183,18 @@
                     card.style.borderTopColor = isAetOrPen ? '#fbbc04' : '#34a853'; // Yellow for AET, Green for FT
                 } else if (!isLive) {
                     card.style.borderTopColor = '#4285f4'; // Blue for upcoming
+                }
+                
+                // Stage Grouping injection (skip for live matches to keep them pinned at top)
+                if (!isLive) {
+                    let matchStage = match['Group'] || 'Other Fixtures';
+                    if (matchStage !== currentStage) {
+                        currentStage = matchStage;
+                        const stageHeader = document.createElement('div');
+                        stageHeader.className = 'stage-header';
+                        stageHeader.innerText = currentStage;
+                        grid.appendChild(stageHeader);
+                    }
                 }
 
                 let statusBadgeHTML = '';
@@ -1137,7 +1298,8 @@
                             alignClass = "text-left font-bold";
                         } else if (k.toLowerCase() === 'form') {
                             // Turn strings like "W, L, D, ?" into colored circles
-                            const balls = val.toString().split('').filter(c => c.trim() && c !== ',').map(c => {
+                            // Limit to 3 matches since the group stage consists of exactly 3 matches per team.
+                            const balls = val.toString().split('').filter(c => c.trim() && c !== ',').slice(0, 3).map(c => {
                                 let char = c.toUpperCase();
                                 let bgClass = char === 'W' ? 'form-w' : (char === 'L' ? 'form-l' : (char === 'D' ? 'form-d' : 'form-u'));
                                 return `<div class="form-ball ${bgClass}">${char}</div>`;
@@ -1188,6 +1350,141 @@
             grid.appendChild(legend);
         }
 
+        // Render Bracket
+        function renderBracket(fixtures) {
+            const bracketGrid = document.getElementById('bracket-grid');
+            if (!bracketGrid) return;
+            bracketGrid.innerHTML = '';
+            
+            const knockoutStages = ['Round of 32', 'Round of 16', 'Quarter-Final', 'Quarter-Finals', 'Semi-Final', 'Semi-Finals', 'Third Place', 'Final'];
+            const knockouts = fixtures.filter(m => knockoutStages.some(stage => (m['Group'] || '').includes(stage)));
+            
+            if (knockouts.length === 0) {
+                bracketGrid.innerHTML = '<div style="width: 100%; text-align: center; color: var(--text-muted); padding: 40px;">Knockout bracket data will appear here once available.</div>';
+                return;
+            }
+
+            const rounds = {};
+            knockouts.forEach(m => {
+                let stage = knockoutStages.find(s => (m['Group'] || '').includes(s));
+                if (stage === 'Quarter-Finals') stage = 'Quarter-Final';
+                if (stage === 'Semi-Finals') stage = 'Semi-Final';
+                if (stage) {
+                    if (!rounds[stage]) rounds[stage] = [];
+                    rounds[stage].push(m);
+                }
+            });
+
+            const displayOrder = ['Round of 32', 'Round of 16', 'Quarter-Final', 'Semi-Final', 'Third Place', 'Final'];
+            
+            displayOrder.forEach(stage => {
+                if (rounds[stage] && rounds[stage].length > 0) {
+                    const roundDiv = document.createElement('div');
+                    roundDiv.className = 'bracket-round';
+                    
+                    const roundTitle = document.createElement('h3');
+                    roundTitle.innerText = stage;
+                    roundTitle.style.textAlign = 'center';
+                    roundTitle.style.color = 'var(--accent)';
+                    roundTitle.style.marginBottom = '15px';
+                    roundDiv.appendChild(roundTitle);
+
+                    rounds[stage].forEach(m => {
+                        const matchDiv = document.createElement('div');
+                        matchDiv.className = 'bracket-match';
+                        
+                        let matchupDisplay = m['Matchup'] || 'TBD v TBD';
+                        let separatorMatch = matchupDisplay.match(/\s+v[s]?\.?\s+/i) || matchupDisplay.match(/\s*-\s*/);
+                        let t1 = 'TBD', t2 = 'TBD';
+                        if (separatorMatch) {
+                            let parts = matchupDisplay.split(separatorMatch[0]);
+                            t1 = parts[0] ? parts[0].trim() : 'TBD';
+                            t2 = parts[1] ? parts[1].trim() : 'TBD';
+                        }
+
+                        let s1 = m['Home Score'] !== undefined && m['Home Score'] !== '' ? m['Home Score'] : '-';
+                        let s2 = m['Away Score'] !== undefined && m['Away Score'] !== '' ? m['Away Score'] : '-';
+
+                        let dateDisplay = m['Date'] || '';
+                        if (dateDisplay && dateDisplay !== 'TBD') {
+                            const d = new Date(dateDisplay);
+                            if (!isNaN(d)) {
+                                if (d.getHours() === 0 && d.getMinutes() === 0 && !m['Time']) {
+                                    dateDisplay = d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+                                } else {
+                                    if (m['Time']) {
+                                        const tStr = m['Time'].toString();
+                                        const timeMatch = tStr.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+                                        if (timeMatch) {
+                                            let h = parseInt(timeMatch[1], 10);
+                                            let min = parseInt(timeMatch[2], 10);
+                                            let ampm = timeMatch[3];
+                                            if (ampm && ampm.toUpperCase() === 'PM' && h < 12) h += 12;
+                                            if (ampm && ampm.toUpperCase() === 'AM' && h === 12) h = 0;
+                                            d.setHours(h, min, 0, 0);
+                                        }
+                                    }
+                                    dateDisplay = d.toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                                }
+                            }
+                        }
+
+                        matchDiv.innerHTML = `
+                            <div class="team" data-team="${t1.replace(/"/g, '&quot;')}" onclick="highlightTeamPath(this)"><span>${addFlags(t1)}</span> <strong>${s1}</strong></div>
+                            <div class="team" data-team="${t2.replace(/"/g, '&quot;')}" onclick="highlightTeamPath(this)"><span>${addFlags(t2)}</span> <strong>${s2}</strong></div>
+                            <div style="font-size: 0.75em; color: var(--text-muted); margin-top: 8px;">${dateDisplay}</div>
+                            <div class="venue" style="margin-top: 8px; padding: 6px; font-size: 0.8em;">📍 ${m['Venue'] || 'TBD'}, ${m['City'] || 'TBD'}</div>
+                        `;
+                        roundDiv.appendChild(matchDiv);
+                    });
+                    bracketGrid.appendChild(roundDiv);
+                }
+            });
+        }
+
+        // Highlight Team Path in Bracket
+        function highlightTeamPath(element) {
+            const team = element.getAttribute('data-team');
+            if (!team || team === 'TBD' || team.includes('Winner')) return;
+
+            const container = document.getElementById('bracket-grid');
+            
+            if (currentHighlightedTeam === team) {
+                // Toggle off if clicking the same team
+                currentHighlightedTeam = null;
+                container.classList.remove('path-active');
+                document.querySelectorAll('.bracket-match').forEach(m => m.classList.remove('has-highlighted-team'));
+                document.querySelectorAll('.bracket-match .team').forEach(t => t.classList.remove('highlighted-team'));
+                return;
+            }
+
+            // Toggle on for the selected team
+            currentHighlightedTeam = team;
+            container.classList.add('path-active');
+            
+            document.querySelectorAll('.bracket-match').forEach(m => m.classList.remove('has-highlighted-team'));
+            document.querySelectorAll('.bracket-match .team').forEach(t => {
+                t.classList.remove('highlighted-team');
+                if (t.getAttribute('data-team') === team) {
+                    t.classList.add('highlighted-team');
+                    t.closest('.bracket-match').classList.add('has-highlighted-team');
+                }
+            });
+        }
+        
+        // Clear Highlight on Outside Click
+        document.addEventListener('click', function(event) {
+            const bracketGrid = document.getElementById('bracket-grid');
+            if (bracketGrid && bracketGrid.classList.contains('path-active')) {
+                if (!event.target.closest('.bracket-match .team')) {
+                    currentHighlightedTeam = null;
+                    bracketGrid.classList.remove('path-active');
+                    document.querySelectorAll('.bracket-match').forEach(m => m.classList.remove('has-highlighted-team'));
+                    document.querySelectorAll('.bracket-match .team').forEach(t => t.classList.remove('highlighted-team'));
+                }
+            }
+        });
+
         // Render Top Scorers Table
         function renderTopScorers(scorers) {
             const table = document.getElementById('scorers-table');
@@ -1218,10 +1515,14 @@
                         val = addFlags(val); // Use existing flag helper
                         alignClass = 'text-left font-bold';
 
-                    // Add Golden Boot icon for the #1 ranked player
-                    if (h.toLowerCase().includes('player') && player['Rank'] == 1) {
-                        val += ' <span title="Golden Boot Leader" style="cursor: help; font-size: 1.1em;">🥇</span>';
-                    }
+                        // Add Golden Boot icon for the #1 ranked player, Flame for top 3
+                        if (h.toLowerCase().includes('player')) {
+                            if (player['Rank'] == 1) {
+                                val += ' <span title="Golden Boot Leader" style="cursor: help; font-size: 1.1em;">🥇</span>';
+                            } else if (player['Rank'] <= 3) {
+                                val += ' <span title="Hot Form" style="cursor: help; font-size: 1.1em;">🔥</span>';
+                            }
+                        }
                     }
                     if (h.toLowerCase().includes('rank') || h.toLowerCase().includes('goals')) {
                         alignClass = 'text-center font-bold';
@@ -1284,8 +1585,8 @@
         // Initialize App & Fetch Data Immediately
         fetchDashboardData();
         
-        // Auto-refresh data in the background every 5 minutes (300,000 milliseconds)
-        setInterval(fetchDashboardData, 300000);
+        // Auto-refresh data in the background every 1 hour (3,600,000 milliseconds)
+        setInterval(fetchDashboardData, 3600000);
     </script>
 </body>
 </html>
