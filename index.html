@@ -308,6 +308,11 @@
             margin-top: 15px;
             text-transform: uppercase;
         }
+        .stage-header.is-past {
+            background: #e6f4ea; /* Light Green */
+            color: #137333; /* Dark Green Text */
+            border: 1px solid #a8dab5; /* Green Border */
+        }
 
         /* Group Cards */
         .group-card {
@@ -471,6 +476,17 @@
             border-left: 4px solid var(--accent);
             position: relative;
         }
+        .bracket-match.is-future {
+            background-color: var(--venue-bg);
+            border: 1px dashed #b8b8b8;
+            border-left: 4px dashed #888888;
+            opacity: 0.75;
+        }
+        .bracket-match.is-live {
+            background-color: var(--live-bg);
+            border-left-color: #ff4d4d;
+            box-shadow: 0 0 8px rgba(255, 77, 77, 0.4);
+        }
         .bracket-match .team {
             display: flex;
             justify-content: space-between;
@@ -553,6 +569,49 @@
             padding-right: 85px; /* Increased specific spacing between Rank and Player */
             width: auto;
         }
+
+        /* Top Scorers Podium */
+        .podium-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 20px;
+            margin: 20px 0 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed var(--table-border);
+        }
+        .podium-player {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 110px;
+        }
+        .podium-player .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--venue-bg);
+            border: 3px solid var(--secondary);
+            object-fit: cover;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .podium-player.rank-1 { order: 2; z-index: 2; padding-bottom: 15px; }
+        .podium-player.rank-2 { order: 1; padding-bottom: 5px; }
+        .podium-player.rank-3 { order: 3; padding-bottom: 0px; }
+        .podium-player.rank-1 .avatar {
+            width: 85px;
+            height: 85px;
+            border-color: #fbbc04; /* Gold */
+            border-width: 4px;
+            box-shadow: 0 0 15px rgba(251, 188, 4, 0.4);
+        }
+        .podium-player.rank-2 .avatar { border-color: #bdc1c6; /* Silver */ }
+        .podium-player.rank-3 .avatar { border-color: #cd7f32; /* Bronze */ }
+        .podium-name { font-weight: 800; font-size: 0.9em; line-height: 1.2; margin-bottom: 4px; }
+        .podium-goals { font-weight: 800; color: var(--secondary); font-size: 0.9em; margin-top: 4px; }
+        .podium-team { font-size: 0.8em; color: var(--text-muted); }
 
         /* Live Match Highlight */
         .live-match {
@@ -775,6 +834,10 @@
             #scrollToTop {
                 width: 40px; height: 40px; font-size: 20px; bottom: 20px; right: 20px;
             }
+            .podium-container { gap: 10px; }
+            .podium-player { width: 90px; }
+            .podium-player.rank-1 .avatar { width: 70px; height: 70px; }
+            .podium-player .avatar { width: 50px; height: 50px; }
         }
     </style>
 </head>
@@ -818,6 +881,7 @@
             <div id="scorers-empty" style="display: none; text-align: center; color: #777; padding: 40px; font-weight: 500;">No scorers found matching your search.</div>
             <div class="card" style="border-top-color: #fbbc04;"> <!-- Yellow accent for scorers -->
                 <div class="group-title" style="color: #b06000;">Top Goal Scorers</div>
+                <div id="top-3-podium" class="podium-container"></div>
                 <div class="group-table-wrapper">
                     <table class="group-table" id="scorers-table"></table>
                 </div>
@@ -1245,6 +1309,17 @@
                         currentStage = matchStage;
                         const stageHeader = document.createElement('div');
                         stageHeader.className = 'stage-header';
+
+                        const matchesInStage = fixtures.filter(m => (m['Group'] || 'Other Fixtures') === currentStage);
+                        const isStageFinished = matchesInStage.length > 0 && matchesInStage.every(m => {
+                            let st = (m['Status'] || "").toString().toLowerCase();
+                            return st.includes('ft') || st.includes('full') || st.includes('finish') || st.includes('end') || st.includes('aet') || st.includes('pen');
+                        });
+                        
+                        if (isStageFinished) {
+                            stageHeader.classList.add('is-past');
+                        }
+
                         stageHeader.innerText = currentStage;
                         grid.appendChild(stageHeader);
                     }
@@ -1438,8 +1513,39 @@
                     const roundTitle = document.createElement('h3');
                     roundTitle.innerText = stage;
                     roundTitle.style.textAlign = 'center';
-                    roundTitle.style.color = 'var(--accent)';
                     roundTitle.style.marginBottom = '15px';
+                    roundTitle.style.padding = '8px 12px';
+                    roundTitle.style.borderRadius = '8px';
+                    roundTitle.style.fontSize = '1.1em';
+
+                    // Determine round status to showcase difference
+                    let finishedCount = 0;
+                    let futureCount = 0;
+                    rounds[stage].forEach(m => {
+                        let st = (m['Status'] || "").toString().toLowerCase();
+                        let isFin = st.includes('ft') || st.includes('full') || st.includes('finish') || st.includes('end') || st.includes('aet') || st.includes('pen');
+                        let isLive = st.includes('live') || st.includes('in play') || st.includes('in progress') || /\d+'/.test(st) || st.includes('half') || st.includes('ht');
+                        if (isFin) finishedCount++;
+                        else if (!isLive) futureCount++;
+                    });
+
+                    if (finishedCount === rounds[stage].length) {
+                        // Past stage
+                        roundTitle.style.backgroundColor = 'var(--venue-bg)';
+                        roundTitle.style.color = 'var(--text-muted)';
+                        roundTitle.style.border = '1px solid #d0d0d0';
+                    } else if (futureCount === rounds[stage].length) {
+                        // Future stage
+                        roundTitle.style.backgroundColor = 'transparent';
+                        roundTitle.style.color = 'var(--text-muted)';
+                        roundTitle.style.border = '1px dashed #b8b8b8';
+                    } else {
+                        // Active stage (Current)
+                        roundTitle.style.backgroundColor = 'var(--secondary)';
+                        roundTitle.style.color = 'white';
+                        roundTitle.style.boxShadow = '0 4px 10px rgba(200, 0, 70, 0.2)';
+                    }
+
                     roundDiv.appendChild(roundTitle);
 
                     rounds[stage].forEach(m => {
@@ -1463,12 +1569,15 @@
                         s2 = s2.replace(/\((\d+)\)/g, '<span class="penalty-accent">($1)</span>');
 
                         let matchStatus = (m['Status'] || "").toString().toLowerCase();
+                        let isLive = matchStatus.includes('live') || matchStatus.includes('in play') || matchStatus.includes('in progress') || /\d+'/.test(matchStatus) || matchStatus.includes('half') || matchStatus.includes('ht');
                         let isAetOrPen = matchStatus.includes('aet') || matchStatus.includes('120') || matchStatus.includes('extra time') || matchStatus.includes('pen');
                         let isFinished = matchStatus.includes('ft') || matchStatus.includes('full') || matchStatus.includes('finish') || matchStatus.includes('end') || isAetOrPen;
                         
                         let borderColorStyle = '';
                         let aetPenIndicator = '';
+                        let matchClass = '';
                         if (isFinished) {
+                            matchClass = 'is-past';
                             if (isAetOrPen) {
                                 borderColorStyle = '#fbbc04'; // Yellow for AET/Pens
                                 let badgeText = matchStatus.includes('pen') ? 'Pens' : 'AET';
@@ -1476,6 +1585,11 @@
                             } else {
                                 borderColorStyle = '#34a853'; // Green for normal FT
                             }
+                        } else if (isLive) {
+                            matchClass = 'is-live';
+                            aetPenIndicator = `<span style="background: #ff4d4d; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 6px; animation: pulse 1.5s infinite;">LIVE</span>`;
+                        } else {
+                            matchClass = 'is-future';
                         }
 
                         let dateDisplay = m['Date'] || '';
@@ -1504,6 +1618,9 @@
 
                         if (borderColorStyle) {
                             matchDiv.style.borderLeftColor = borderColorStyle;
+                        }
+                        if (matchClass) {
+                            matchDiv.classList.add(matchClass);
                         }
 
                         matchDiv.innerHTML = `
@@ -1567,11 +1684,39 @@
         // Render Top Scorers Table
         function renderTopScorers(scorers) {
             const table = document.getElementById('scorers-table');
+            const podium = document.getElementById('top-3-podium');
             if (!table) return;
 
             if (!scorers || scorers.length === 0) {
                 table.innerHTML = '<tbody><tr><td colspan="4" class="text-center" style="padding: 20px;">No top scorer data available yet.</td></tr></tbody>';
+                if (podium) podium.innerHTML = '';
                 return;
+            }
+
+            // Render Top 3 Podium
+            if (podium) {
+                let podiumHtml = '';
+                const top3 = scorers.slice(0, 3);
+                
+                top3.forEach((p, index) => {
+                    const rank = index + 1;
+                    const photo = p['Photo'] || `https://ui-avatars.com/api/?name=${encodeURIComponent(p['Player'])}&background=eceef1&color=333&size=128&font-size=0.4`;
+                    
+                    let medal = '';
+                    if (rank === 1) medal = '🥇';
+                    if (rank === 2) medal = '🥈';
+                    if (rank === 3) medal = '🥉';
+
+                    podiumHtml += `
+                        <div class="podium-player rank-${rank}">
+                            <img src="${photo}" class="avatar" alt="${p['Player'].replace(/"/g, '&quot;')}">
+                            <div class="podium-name">${medal} ${p['Player']}</div>
+                            <div class="podium-team">${addFlags(p['Team'] || '')}</div>
+                            <div class="podium-goals">${p['Goals']} Goals</div>
+                        </div>
+                    `;
+                });
+                podium.innerHTML = podiumHtml;
             }
 
             const headers = Object.keys(scorers[0]);
@@ -1645,6 +1790,11 @@
                 }
             });
             
+            const podium = document.getElementById('top-3-podium');
+            if (podium) {
+                podium.style.display = query.trim() ? 'none' : '';
+            }
+
             document.getElementById('scorers-empty').style.display = matchCount === 0 ? 'block' : 'none';
             const tableCard = document.querySelector('#scorers .card');
             if (tableCard) {
