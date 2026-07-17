@@ -85,7 +85,7 @@ def update_live_scores():
     updates = []
     # ESPN to Google Sheet specific name mappings
     TEAM_MAPPING = {
-        "United States": "USA",
+        "USA": "United States",
         "Korea Republic": "South Korea",
         "Bosnia and Herzegovina": "Bosnia-Herzegovina",
         "Bosnia-Herzegovina": "Bosnia-Herzegovina",
@@ -451,7 +451,7 @@ def calculate_and_update_top_scorers():
     live_matches = []
     
     # Fetch a wide range of dates to ensure all tournament goals are captured
-    for i in range(-30, 5):
+    for i in range(-50, 5):
         target_date = (datetime.now() + timedelta(days=i)).strftime("%Y%m%d")
         try:
             response = requests.get(f"{ESPN_API_URL}?dates={target_date}", headers=headers, timeout=15)
@@ -465,7 +465,7 @@ def calculate_and_update_top_scorers():
 
     player_goals = {}  # {'Player Name': {'goals': count, 'team': 'Team Name'}}
     TEAM_MAPPING = {
-        "United States": "USA",
+        "USA": "United States",
         "Korea Republic": "South Korea",
         "Bosnia and Herzegovina": "Bosnia-Herzegovina",
         "Bosnia-Herzegovina": "Bosnia-Herzegovina",
@@ -512,21 +512,49 @@ def calculate_and_update_top_scorers():
             except Exception:
                 pass
 
-        key_events = summary_data.get('keyEvents', []) or summary_data.get('plays', []) or event['competitions'][0].get('details', [])
+        key_events = []
+        if summary_data:
+            key_events = summary_data.get('keyEvents', [])
+            if not key_events and 'plays' in summary_data:
+                key_events = summary_data.get('plays', [])
+            if not key_events and 'header' in summary_data:
+                try:
+                    key_events = summary_data['header']['competitions'][0].get('details', [])
+                except (KeyError, IndexError):
+                    pass
+                    
+        if not key_events:
+            key_events = event['competitions'][0].get('details', [])
 
         for detail in key_events:
-            is_goal = detail.get('scoringPlay') or 'goal' in str(detail.get('type', {}).get('text') or '').lower()
+            detail_type = str(detail.get('type', {}).get('text') or '').lower()
+            is_goal = detail.get('scoringPlay') == True
+            
+            if not is_goal:
+                if 'goal' in detail_type or 'penalty' in detail_type:
+                    is_goal = True
+                    
+            # Exclude own goals and shootout penalties from top scorers
+            if 'own' in detail_type or 'shootout' in detail_type or 'miss' in detail_type or 'saved' in detail_type:
+                is_goal = False
+                
             if not is_goal: continue
 
             athlete_name = ""
             if 'participants' in detail and detail['participants']:
                 athlete = detail['participants'][0].get('athlete', {})
                 athlete_name = athlete.get('shortName', athlete.get('displayName', ''))
+            elif 'athletesInvolved' in detail and detail['athletesInvolved']:
+                athlete = detail['athletesInvolved'][0]
+                athlete_name = athlete.get('shortName', athlete.get('displayName', ''))
+            elif 'athlete' in detail:
+                athlete = detail['athlete']
+                athlete_name = athlete.get('shortName', athlete.get('displayName', ''))
 
             if not athlete_name: continue
 
             scoring_team_id = detail.get('team', {}).get('id')
-            player_team_name = home_team_name if scoring_team_id == home_team_id else away_team_name
+            player_team_name = home_team_name if str(scoring_team_id) == str(home_team_id) else away_team_name
 
             if athlete_name not in player_goals:
                 player_goals[athlete_name] = {'goals': 0, 'team': player_team_name}
